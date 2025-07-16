@@ -26,6 +26,8 @@ repositories {
 dependencies { /* 메이븐 리포지토리에서 코드를 가지고 와 코끼리를 누르면 가지고 온다 */
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' /*프론트 관련 */
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0' /* 프론트 레이아웃 관현*/
+
     implementation 'org.springframework.boot:spring-boot-starter-web' /* 스프링-웹 */
     annotationProcessor 'org.projectlombok:lombok'                  /* 롬북 */
     compileOnly 'org.projectlombok:lombok'                              /* 롬북 */
