@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>보드 레이데이트</title>
+</head>
+<div layout:fragment="content">
+  <div class="row mt-3">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          보드 레그데이터
+        </div>
+          <div class="card-body">
+            <form action="/board/register" method="post">
+              <div class="input-group mb-3">
+                <span class="input-group-text"> 제목 </span>
+                <input type="text" name="title" class="form-control" placeholder="Title">
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text"> 내용 </span>
+                <textarea class="form-control col-sm-5" rows="5" name="content"></textarea>
+              </div>
+
+              <div class="input-group mb-3">
+                <span class="input-group-text"> 작성자 </span>
+                <input type="text" name="writer" class="form-control" placeholder="writer"></textarea>
+              </div>
+
+              <div class="my-4">
+                <div class="float-end">
+                  <button type="submit" class="btn btn-primary">저장</button>
+                  <button type="reset" class="btn btn-secondary">리셋</button>
+                </div>
+              </div>
+            </form> <!-- 여기까지 바디 메서드 끝-->
+        </div> <!-- 카드 바디 끝 -->
+      </div> <!-- 카드 끝 -->
+    </div> <!-- 쿨 끝 -->
+  </div> <!-- 로우 끝 -->
+
+    <div class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">모델 타이틀</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+          </div>
+          <div class="modal-body">
+            <p> 모델 바디 텍스트 고스 히얼</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn brt-secondary" data-bs-dismiss="modal">닫기</button>
+            <button type="button" class="btn brt-primary">저장 바꾸기</button>
+          </div>
+        </div>
+      </div>
+</div>
+</div> <!-- 레이아웃 프레그먼트 종료 -->
+
+<script layout:fragment="script" th:inline="javascript">
+  // 에러 처리
+  const errors = [[${errors}]]
+  console.log(errors)
+  let errorMsg = ''
+  if (errors) {
+    for (let i = 0; i < errors.length; i++) {
+      errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`
+    }
+    alert((errorMsg))
+    }
+
+  // 등록 성공 모달 처리
+    const result = [[${result}]]
+    const modal = new bootstrap.Modal(document.querySelector(".modal"))
+    if (result) {
+      modal.show()
+  }
+</script>

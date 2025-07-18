@@ -34,6 +34,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' /* 프론트 관련 */
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0' /* 프론트 레이아웃 관련*/
+    implementation 'org.springframework.boot:spring-boot-starter-validation' /* p.487 */
 
     implementation 'org.springframework.boot:spring-boot-starter-web'       /* string-web */
     compileOnly 'org.projectlombok:lombok'                                  /* 롬북 */
@@ -41,11 +42,13 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'                              /* 롬북 */
     testAnnotationProcessor 'org.projectlombok:lombok'                      /* 롬북 */
 
-    /* DTO와 엔티티 간의 변환 처리용 (p.460)*/
+
+
+    /* DTO와 엔티티 간에 변환 처리용 P460 */
     // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
     implementation 'org.modelmapper:modelmapper:3.1.0'
-    /* 과거에는 엔티티를 DTO로 변환 또는 DTO를 엔티티로 변환해서 사용해야 함 */
-    /* project config라는 환경설정용 패키지 생성 후 rootConfig 클래스 생성 후 사용*/
+    /* 과거에는 엔티티를 DTO로 변환 또는 DTO를 엔티티로 변환 해야 사용해야 함 */
+    /* 프로젝트에 config라는 환경설정용 패키지를 만들고 RootConfig 클래스를 만들어 사용한다. */
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'         /* boot 개발용 */
 

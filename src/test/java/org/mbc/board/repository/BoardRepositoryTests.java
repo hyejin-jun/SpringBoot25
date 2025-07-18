@@ -3,7 +3,6 @@ package org.mbc.board.repository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.mbc.board.domain.Board;
-import org.mbc.board.dto.BoardDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -217,69 +216,67 @@ public class BoardRepositoryTests {
         //    from
         //        board b1_0
         //    where
-        //        b1_0.title like ? escape '!'  -> like 1  >> 조건 하나
+        //        b1_0.title like ? escape '!'  -> like 1  -> 조건이 1개일 경우
 
-       /* select
-       b1_0.bno,
-                b1_0.content,
-                b1_0.moddate,
-                b1_0.regdate,
-                b1_0.title,
-                b1_0.writer
-        from
-        board b1_0
-        where
-                (
-                        b1_0.title like ? escape '!'
-        or b1_0.content like ? escape '!'   >> 조건 두 개
-           )
-        and b1_0.bno>?  >>  query.where(board.bno.gt(0L));
-    order by
-        b1_0.bno desc
-    limit
-        ?, ?  >> this.getQuerydsl().applyPagination(pageable, query);
-Hibernate:
-    select
-        count(b1_0.bno)
-    from
-        board b1_0
-    where
-        (
-            b1_0.title like ? escape '!'
-            or b1_0.content like ? escape '!'
-        )
-        and b1_0.bno>?
-        */
+        //Hibernate:
+        //    select
+        //        b1_0.bno,
+        //        b1_0.content,
+        //        b1_0.moddate,
+        //        b1_0.regdate,
+        //        b1_0.title,
+        //        b1_0.writer
+        //    from
+        //        board b1_0
+        //    where
+        //        (
+        //            b1_0.title like ? escape '!'
+        //            or b1_0.content like ? escape '!'   -> 조건이 2개 title, content (booleanBuilder)
+        //        )
+        //        and b1_0.bno>?  -> query.where(board.bno.gt(0L))
+        //    order by
+        //        b1_0.bno desc
+        //    limit
+        //        ?, ?   -> this.getQuerydsl().applyPagination(pageable, query);
+        //  PageRequest.of(1,10, Sort.by("bno").descending());
 
     }
 
     @Test
     public void testSearchAll(){
+        // 프론트에서 t가 선택되면 title, c가 선택되면 content, w가 선택되면 writer가 조건으로 제시됨
+
         String[] types = {"t", "w"};  // 검색 조건
-        String keyword="10";  // 검색 단어
+
+        String keyword = "10";  // 검색 단어
+
         Pageable pageable = PageRequest.of(0,10, Sort.by("bno").descending());
+
         Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
-/*        Hibernate:
-        select
-        b1_0.bno,
-                b1_0.content,
-                b1_0.moddate,
-                b1_0.regdate,
-                b1_0.title,
-                b1_0.writer
-        from
-        board b1_0
-        where
-                (
-                        b1_0.title like ? escape '!'
-        or b1_0.content like ? escape '!'
-        or b1_0.writer like ? escape '!'
-        )
-        and b1_0.bno>?
-                order by
-        b1_0.bno desc
-        limit
-                ?, ? */
+
+        //Hibernate:
+        //    select
+        //        b1_0.bno,
+        //        b1_0.content,
+        //        b1_0.moddate,
+        //        b1_0.regdate,
+        //        b1_0.title,
+        //        b1_0.writer
+        //    from
+        //        board b1_0
+        //    where
+        //        (
+        //            b1_0.title like ? escape '!'
+        //            or b1_0.content like ? escape '!'
+        //            or b1_0.writer like ? escape '!'      //   if( (types != null && types.length >0 ) && keyword !=null ){
+        //        )
+        //        and b1_0.bno>?
+        //    order by
+        //        b1_0.bno desc    // PageRequest.of(0,10, Sort.by("bno").descending());
+        //    limit
+        //        ?, ?
+
+
         log.info("전체 게시물 수 : " + result.getTotalElements());  // 99
         log.info("총 페이지 수 : " + result.getTotalPages());       // 10
         log.info("현재 페이지 번호 : " + result.getNumber());       // 0
@@ -288,6 +285,7 @@ Hibernate:
         log.info("시작페이지 여부 : " + result.isFirst());         // true
 
         result.getContent().forEach(board -> log.info(board));
+
     }
 
 
