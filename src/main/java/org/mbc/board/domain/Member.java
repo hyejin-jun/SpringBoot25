@@ -60,6 +60,4 @@ public class Member extends BaseEntity {
     public void changeSocial(boolean social) {
         this.social = social;
     }
-
-    }
-
+}

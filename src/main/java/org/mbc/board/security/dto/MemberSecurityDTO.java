@@ -14,7 +14,7 @@ import java.util.Map;
 @Setter
 @ToString
 public class MemberSecurityDTO extends User implements OAuth2User { //extends User 시큐리티 DUserDetails 용
-
+                                        // p754 implements OAuth2User 카카오로그인 가능하게
     // 필드
     private String mid;
     private String mpw;
@@ -22,8 +22,13 @@ public class MemberSecurityDTO extends User implements OAuth2User { //extends Us
     private boolean del;
     private boolean social;
 
-    // 소설 정보 로그인
-    private Map<String, Object> props;
+    // 소셜 로그인 정보 p754 추가
+    private Map<String, Object> props; //
+    //kakao_account:{profile_nickname_needs_agreement=false,
+    // profile={nickname=김기원, is_default_nickname=false}, has_email=true,
+    // email_needs_agreement=false, is_email_valid=true,
+    // is_email_verified=true, email=lonen@nate.com}
+
 
     // 생성자
     public MemberSecurityDTO(String username, String password, String email,
@@ -40,12 +45,12 @@ public class MemberSecurityDTO extends User implements OAuth2User { //extends Us
         this.social = social;
     }
 
-    @Override
+    @Override  // p754 추가 (카카오 로그인 정보 가져오기)
     public Map<String, Object> getAttributes() {
         return this.getProps();
     }
 
-    @Override
+    @Override // p754 추가 (db에 id 가져오기)
     public String getName() {
         return this.mid;
     }

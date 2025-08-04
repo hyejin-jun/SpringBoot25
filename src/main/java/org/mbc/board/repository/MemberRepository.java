@@ -19,13 +19,14 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     // member 테이블에 있는 정보에 mid를 가져오는데 소셜로그인은 false
     Optional<Member> getWithRoles(String mid); // id가 들어가면 해당 롤이 나옴
 
-    // 이메일을 이용해서 회원 정보 찾기
-    @EntityGraph(attributePaths = "roleSet")
-    Optional<Member> findByEmail (String email);
+
+    // email을 이용해서 회원 정보를 찾을 수 있도록
+    @EntityGraph(attributePaths = "roleSet") // 연관된 롤을 가져옴 (USER,ADMIN)
+    Optional<Member> findByEmail(String email);
+
 
     @Modifying
     @Transactional
-    @Query("update Member m set m.mpw =:mpw where m.mid =:mid")
-    void updatePassword(@Param("mpw") String password, @Param("mid") String mid);
-
+    @Query("update Member m set m.mpw= :mpw where m.mid= :mid")
+    Optional<Member> updatePassword(@Param("mpw") String password, @Param("mid") String mid);
 }

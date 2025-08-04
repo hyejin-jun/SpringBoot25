@@ -2,13 +2,13 @@ package org.mbc.board.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.mbc.board.security.CustomOAuth2UserService;
 import org.mbc.board.security.CustomUserDetailsService;
 import org.mbc.board.security.handler.Custom403Handler;
 import org.mbc.board.security.handler.CustomSocialLoginSuccessHandler;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -44,13 +44,13 @@ public class CustomSecurityConfig {
     // Using generated security password: 056b482c-b7f9-4582-8a48-392bdc5e9d55(1회용)
 
     // p704추가 자동로그인용 데이터베이스 연동
-    private final DataSource dataSource;
-
+    private final DataSource dataSource;  
+    
     // p704추가 User 객체 처리용
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean  // Spring 레거시에는 root-context.xml에서 설정 한 부분
-    public SecurityFilterChain FilterChain(HttpSecurity http, CustomSocialLoginSuccessHandler customSocialLoginSuccessHandler, CustomOAuth2UserService customOAuth2UserService) throws Exception {
+    public SecurityFilterChain FilterChain(HttpSecurity http) throws Exception {
         // 리턴 값                          파라미터                 예외처리
         // 강제 로그인 안하는 메서드용
 
@@ -71,50 +71,50 @@ public class CustomSecurityConfig {
         // formLogin()' is deprecated since version 6.1 and marked for removal
         // http.formLogin();  시큐리티 버전 6.1이상 급에서는 사용하지 말것!!!
         // 람다식으로 변환해서 사용 -> 시큐리티 5버전에서는 매개변수가 없는 메서드를 사용가능 -> 6버전이상에서는 deprecated
-        http.formLogin(form -> {
-            // 시큐리티 6버전이상에서는 람다식 으로 변환하여 사용됨.
-            log.info("======= 커스텀한 로그인 페이지 호출=======");
-            form.loginPage("/member/login");  // 로그인페이지 커스텀 p694
-            // http://localhost/member/login.html
-        });
+            http.formLogin(form -> {
+                // 시큐리티 6버전이상에서는 람다식 으로 변환하여 사용됨.
+                log.info("======= 커스텀한 로그인 페이지 호출=======");
+                form.loginPage("/member/login")
+                ;  // 로그인페이지 커스텀 p694
+                //successForwardUrl("/board/list");
 
-        // http.csrf().disable()
-        // 6.1 버전에서 제외 됨 (스프링 3.0이후 버전에서는 사용 안됨)
-        // 람다식으로 사용할 것을 권고 함. 아래로 변경
-        http.csrf(httpSecurityCsrfConfigurer -> {
-            // csrf 토큰에 대한 비활성화
-            // 실무에서는 사용하면 안됨
-            // 프론트에 아래코드 필수
-            // <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-            log.info("======= CSRF 비활성화 호출=======");
-            httpSecurityCsrfConfigurer.disable();
-        });
+                // http://localhost/member/login.html
+            });
 
-        // 카카오 로그인 추가
-        // 시큐리티 6 버전이라 사용 불가 ttp.oauth2Login().loginPage("/member/login");
-        http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> {
-            httpSecurityOAuth2LoginConfigurer.loginPage("/member/login");
-            httpSecurityOAuth2LoginConfigurer.successHandler(authenticationSuccessHandler());
-            ;
-        });
+            // http.csrf().disable()
+            // 6.1 버전에서 제외 됨 (스프링 3.0이후 버전에서는 사용 안됨)
+            // 람다식으로 사용할 것을 권고 함. 아래로 변경
+            http.csrf(httpSecurityCsrfConfigurer -> {
+                // csrf 토큰에 대한 비활성화
+                // 실무에서는 사용하면 안됨
+                // 프론트에 아래코드 필수
+                // <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                log.info("======= CSRF 비활성화 호출=======");
+                httpSecurityCsrfConfigurer.disable();
+            });
 
+            // p704 자동로그인 기능 구현 추가
+            http.rememberMe(httpSecurityRememberMeConfigurer -> {
+                httpSecurityRememberMeConfigurer.key("12345678") // key는 개발자 맘대로(쿠키값을 인코딩시 활용)
+                        .tokenRepository(persistentTokenRepository())  // 필요한 정보를 저장(하단 메서드추가)
+                        .userDetailsService(customUserDetailsService)  // User 객체 이용
+                        .tokenValiditySeconds(60*60*24*30); // 30일 보관
+                log.info("======= 자동 로그인기법 rememberMe 호출=======");
+                //                            초 분 시 일 쿠기의 maxAge()
+            });
 
-        // p704 자동로그인 기능 구현 추가
-        http.rememberMe(httpSecurityRememberMeConfigurer -> {
-            httpSecurityRememberMeConfigurer.key("12345678") // key는 개발자 맘대로(쿠키값을 인코딩시 활용)
-                    .tokenRepository(persistentTokenRepository())  // 필요한 정보를 저장(하단 메서드추가)
-                    .userDetailsService(customUserDetailsService)  // User 객체 이용
-                    .tokenValiditySeconds(60 * 60 * 24 * 30); // 30일 보관
-            log.info("======= 자동 로그인기법 rememberMe 호출=======");
-            //                            초 분 시 일 쿠기의 maxAge()
-        });
+            // p746 카카오로그인 추가
+            // 시큐리티 6버전 차단 !! http.oauth2Login().loginPage("/member/login");
+            http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> {
+                httpSecurityOAuth2LoginConfigurer.loginPage("/member/login");
+                httpSecurityOAuth2LoginConfigurer.successHandler(authenticationSuccessHandler()); // 761 추가 소설로그인 암호 강제 변경
+            });
 
-        // p718 403예외처리 핸들러 사용
-        http.exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
-            httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler());
-            // 하단에 메서드 추가
-        });
-
+            // p718 403예외처리 핸들러 사용
+            http.exceptionHandling(httpSecurityExceptionHandlingConfigurer -> {
+                httpSecurityExceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler());
+                                                                            // 하단에 메서드 추가
+            });
 
         return http.build();
     }
@@ -151,13 +151,9 @@ public class CustomSecurityConfig {
         return new BCryptPasswordEncoder(); // 해시코드로 암호화기법을 적용
     }
 
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+    @Bean // p760 커스텀 소설로그인 성공클래스 사용
+    public AuthenticationSuccessHandler authenticationSuccessHandler(){
         return new CustomSocialLoginSuccessHandler(passwordEncoder());
+        // 기존 내장된 것을 커스텀한 객체로 활용
     }
-
-
 }
-
-
-

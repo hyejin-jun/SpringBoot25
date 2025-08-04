@@ -6,9 +6,7 @@ import org.mbc.board.domain.Member;
 import org.mbc.board.domain.MemberRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Commit;
 
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -27,17 +25,17 @@ public class MemberRepositoryTests {
     @Test
     public void insertMembers() {
 
-        IntStream.rangeClosed(1, 100).forEach(i -> {
+        IntStream.rangeClosed(1,100).forEach(i -> {
             Member member = Member.builder()
-                    .mid("member" + i)
+                    .mid("member"+i)
                     .mpw(passwordEncoder.encode("1111"))
-                    .email("email" + i + "@mbc.org")
+                    .email("email"+i+"@mbc.org")
                     .build();
 
             // 해당회원의 role이 적용
             member.addRole(MemberRole.USER); // 100명의 회원은 기본적으로 USER 롤을 갖는다.
 
-            if (i >= 90) {
+            if(i>= 90) {
                 member.addRole(MemberRole.ADMIN); // 회원에 90번이상은 admin도 갖는다.
             }
             memberRepository.save(member); // 1명씩 데이터베이스에 저장됨
@@ -48,7 +46,7 @@ public class MemberRepositoryTests {
 
 
     @Test
-    public void testRead() {
+    public void testRead(){
 
         Optional<Member> result = memberRepository.getWithRoles("member100");
 
@@ -61,14 +59,8 @@ public class MemberRepositoryTests {
         member.getRoleSet().forEach(memberRole -> {
             log.info(memberRole.name()); // enum에 이름을 출력
         });
+
     }
 
-    @Test
-    @Commit
-    public void testUpdate() {
-        String mid = "cookie_00@naver.com";
-        String mpw = passwordEncoder.encode("54321");
 
-        memberRepository.updatePassword(mpw, mid);
-    }
 }

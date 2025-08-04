@@ -6,6 +6,7 @@ import org.mbc.board.domain.Member;
 import org.mbc.board.domain.MemberRole;
 import org.mbc.board.dto.MemberJoinDTO;
 import org.mbc.board.repository.MemberRepository;
+import org.mbc.board.security.dto.MemberSecurityDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,23 +23,13 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public MemberJoinDTO getMemberByEmail(String email) {
-        return null;
-    }
-
-    @Override
-    public void updateMember(MemberJoinDTO memberJoinDTO) {
-
-    }
-
-    @Override
     public void join(MemberJoinDTO memberJoinDTO) throws MidExistException {
         // 기존에 id가 있는지 확인
         String mid = memberJoinDTO.getMid(); // 프론트에서 id가 넘어옴
         boolean exist = memberRepository.existsById(mid); // 기존에 id 있는지 찾고 t/f
 
 
-        if (exist) {
+        if(exist) {
             throw new MidExistException(); // 중복id 처리용 예외처리 발생
         }
         // 진짜 회원가입처리
@@ -56,8 +47,23 @@ public class MemberServiceImpl implements MemberService {
 
     }
 
+    @Override
+    public void modifyPw(MemberSecurityDTO memberSecurityDTO) {
+        // 기존에 id가 있는지 확인
+        String mid = memberSecurityDTO.getMid(); // 프론트에서 id가 넘어옴
 
+        // 진짜 회원가입처리
+        Member member = modelMapper.map(memberSecurityDTO, Member.class);
+        // 엔티티                              dto
+        log.info("MemberServiceImpl.modifyPw 메서드 실행 : ");
+        log.info("member 엔티티 :" + member);
+        member.changePassword(passwordEncoder.encode(memberSecurityDTO.getMpw()));
 
+        log.info("=============================");
+        log.info(member);
+        log.info(member.getRoleSet());
 
+        memberRepository.save(member);
 
+    }
 }
